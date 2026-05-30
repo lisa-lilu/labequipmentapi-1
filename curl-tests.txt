@@ -1,0 +1,324 @@
+================================================================================
+LAB EQUIPMENT API - EDGE CASE CURL TESTS
+================================================================================
+
+BASE URL: http://localhost:3000
+
+================================================================================
+SETUP: Create test data first
+================================================================================
+
+# Create a valid category (needed for equipment tests)
+curl -X POST http://localhost:3000/categories \
+  -H "Content-Type: application/json" \
+  -d '{"category": {"name": "Testing Equipment"}}'
+
+# Note the category ID from response (e.g., id: XX)
+# Use that ID in tests below
+
+================================================================================
+EDGE CASE 1: Category - Name Too Short (< 3 chars)
+Expected: 422 Unprocessable Entity
+Validation Error: "Name is too short"
+================================================================================
+
+curl -X POST http://localhost:3000/categories \
+  -H "Content-Type: application/json" \
+  -d '{"category": {"name": "AB"}}'
+
+Response should show:
+{
+  "errors": ["Name is too short (minimum is 3 characters)"]
+}
+
+
+================================================================================
+EDGE CASE 2: Category - Name Empty
+Expected: 422 Unprocessable Entity
+Validation Error: "Name can't be blank"
+================================================================================
+
+curl -X POST http://localhost:3000/categories \
+  -H "Content-Type: application/json" \
+  -d '{"category": {"name": ""}}'
+
+Response should show:
+{
+  "errors": ["Name can't be blank"]
+}
+
+
+================================================================================
+EDGE CASE 3: Category - Duplicate Name
+Expected: 422 Unprocessable Entity
+Validation Error: "Name has already been taken"
+================================================================================
+
+# First create a category
+curl -X POST http://localhost:3000/categories \
+  -H "Content-Type: application/json" \
+  -d '{"category": {"name": "Microscopy"}}'
+
+# Try to create the same category again
+curl -X POST http://localhost:3000/categories \
+  -H "Content-Type: application/json" \
+  -d '{"category": {"name": "Microscopy"}}'
+
+Response should show:
+{
+  "errors": ["Name has already been taken"]
+}
+
+
+================================================================================
+EDGE CASE 4: Equipment - Serial Number with Special Characters
+Expected: 422 Unprocessable Entity
+Validation Error: "Serial number must be alphanumeric"
+================================================================================
+
+# Replace CATEGORY_ID with the ID from setup
+curl -X POST http://localhost:3000/equipment \
+  -H "Content-Type: application/json" \
+  -d '{
+    "equipment": {
+      "name": "Microscope",
+      "serial_number": "ABC@123!",
+      "status": "available",
+      "category_id": CATEGORY_ID
+    }
+  }'
+
+Response should show:
+{
+  "errors": ["Serial number must be alphanumeric (letters and numbers only, no special characters)"]
+}
+
+
+================================================================================
+EDGE CASE 5: Equipment - Duplicate Serial Number
+Expected: 422 Unprocessable Entity
+Validation Error: "Serial number has already been taken"
+================================================================================
+
+# First create equipment with a serial number
+curl -X POST http://localhost:3000/equipment \
+  -H "Content-Type: application/json" \
+  -d '{
+    "equipment": {
+      "name": "Microscope A",
+      "serial_number": "SN12345",
+      "status": "available",
+      "category_id": CATEGORY_ID
+    }
+  }'
+
+# Try to create another equipment with the same serial number
+curl -X POST http://localhost:3000/equipment \
+  -H "Content-Type: application/json" \
+  -d '{
+    "equipment": {
+      "name": "Microscope B",
+      "serial_number": "SN12345",
+      "status": "available",
+      "category_id": CATEGORY_ID
+    }
+  }'
+
+Response should show:
+{
+  "errors": ["Serial number has already been taken"]
+}
+
+
+================================================================================
+EDGE CASE 6: Equipment - Invalid Status Value
+Expected: 422 Unprocessable Entity
+Validation Error: "Status is not included in the list"
+================================================================================
+
+curl -X POST http://localhost:3000/equipment \
+  -H "Content-Type: application/json" \
+  -d '{
+    "equipment": {
+      "name": "Microscope",
+      "serial_number": "SN99999",
+      "status": "broken",
+      "category_id": CATEGORY_ID
+    }
+  }'
+
+Response should show:
+{
+  "errors": ["Status is not included in the list: available, in_use, maintenance"]
+}
+
+
+================================================================================
+EDGE CASE 7: MaintenanceRecord - Future Date
+Expected: 422 Unprocessable Entity
+Validation Error: "Performed at cannot be in the future"
+================================================================================
+
+# First create valid equipment
+curl -X POST http://localhost:3000/equipment \
+  -H "Content-Type: application/json" \
+  -d '{
+    "equipment": {
+      "name": "Test Equipment",
+      "serial_number": "MAINT001",
+      "status": "maintenance",
+      "category_id": CATEGORY_ID
+    }
+  }'
+
+# Note the equipment ID from response
+# Try to create maintenance record with future date
+curl -X POST http://localhost:3000/maintenance_records \
+  -H "Content-Type: application/json" \
+  -d '{
+    "maintenance_record": {
+      "performed_at": "2030-12-31T10:00:00Z",
+      "description": "Future maintenance",
+      "equipment_id": EQUIPMENT_ID
+    }
+  }'
+
+Response should show:
+{
+  "errors": ["Performed at cannot be in the future"]
+}
+
+
+================================================================================
+EDGE CASE 8: MaintenanceRecord - Missing Description
+Expected: 422 Unprocessable Entity
+Validation Error: "Description can't be blank"
+================================================================================
+
+curl -X POST http://localhost:3000/maintenance_records \
+  -H "Content-Type: application/json" \
+  -d '{
+    "maintenance_record": {
+      "performed_at": "2026-05-28T10:00:00Z",
+      "description": "",
+      "equipment_id": EQUIPMENT_ID
+    }
+  }'
+
+Response should show:
+{
+  "errors": ["Description can't be blank"]
+}
+
+
+================================================================================
+EDGE CASE 9: Get Non-Existent Resource (404)
+Expected: 404 Not Found
+================================================================================
+
+# Try to get a category that doesn't exist
+curl -X GET http://localhost:3000/categories/99999 \
+  -H "Content-Type: application/json"
+
+Response should show:
+{
+  "error": "Category not found"
+}
+
+
+================================================================================
+EDGE CASE 10: Delete Category with Equipment (409 Conflict)
+Expected: 409 Conflict
+Cannot delete category with dependent equipment
+================================================================================
+
+# Create a category
+curl -X POST http://localhost:3000/categories \
+  -H "Content-Type: application/json" \
+  -d '{"category": {"name": "Electronics"}}'
+
+# Note the category ID (e.g., CATEGORY_ID_2)
+# Create equipment for that category
+curl -X POST http://localhost:3000/equipment \
+  -H "Content-Type: application/json" \
+  -d '{
+    "equipment": {
+      "name": "Oscilloscope",
+      "serial_number": "OSC001",
+      "status": "available",
+      "category_id": CATEGORY_ID_2
+    }
+  }'
+
+# Try to delete the category (should fail)
+curl -X DELETE http://localhost:3000/categories/CATEGORY_ID_2 \
+  -H "Content-Type: application/json"
+
+Response should show:
+{
+  "error": "Cannot delete category. 1 equipment items still belong to it."
+}
+HTTP Status: 409 Conflict
+
+
+================================================================================
+VALIDATION SUMMARY
+================================================================================
+
+CATEGORY VALIDATIONS:
+✓ Name is required (presence: true)
+✓ Name must be at least 3 characters (length: { minimum: 3 })
+✓ Name must be unique (uniqueness: true)
+✓ Cannot delete category with equipment (dependent: :restrict_with_error)
+
+EQUIPMENT VALIDATIONS:
+✓ Name is required (presence: true)
+✓ Serial number is required (presence: true)
+✓ Serial number must be unique (uniqueness: true)
+✓ Serial number must be alphanumeric only (custom validation)
+✓ Status must be one of: available, in_use, maintenance
+✓ Category ID is required (belongs_to: :category)
+
+MAINTENANCE RECORD VALIDATIONS:
+✓ Description is required (presence: true)
+✓ Performed_at is required (presence: true)
+✓ Performed_at cannot be in the future (custom validation)
+✓ Equipment ID is required (belongs_to: :equipment)
+
+HTTP STATUS CODES:
+✓ 200 OK - Successful GET/PATCH
+✓ 201 Created - Successful POST
+✓ 204 No Content - Successful DELETE
+✓ 404 Not Found - Resource not found
+✓ 409 Conflict - Cannot delete category with equipment
+✓ 422 Unprocessable Entity - Validation failed
+
+
+================================================================================
+HOW TO RUN THESE TESTS
+================================================================================
+
+1. Start the Rails server:
+   rails s
+
+2. Run each curl command in a new terminal
+
+3. Verify:
+   - Status codes match expected values
+   - Error messages are clear and descriptive
+   - Data is created correctly for valid requests
+   - Invalid data is properly rejected
+
+4. Example test run:
+   
+   # Test 1: Valid category creation
+   curl -X POST http://localhost:3000/categories \
+     -H "Content-Type: application/json" \
+     -d '{"category": {"name": "Valid Category"}}'
+   # Expected: 201 Created with category JSON
+   
+   # Test 2: Invalid category (too short)
+   curl -X POST http://localhost:3000/categories \
+     -H "Content-Type: application/json" \
+     -d '{"category": {"name": "AB"}}'
+   # Expected: 422 Unprocessable Entity with error message
