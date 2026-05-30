@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_26_191244) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_28_093820) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -36,6 +36,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_191244) do
     t.datetime "created_at", null: false
     t.text "description", null: false
     t.bigint "equipment_id", null: false
+    t.string "maintenance_type"
     t.datetime "performed_at", null: false
     t.datetime "updated_at", null: false
     t.index ["equipment_id", "performed_at"], name: "index_maintenance_records_on_equipment_id_and_performed_at"
