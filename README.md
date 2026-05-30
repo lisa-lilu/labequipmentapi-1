@@ -1,16 +1,36 @@
-# README
-# Lab Equipment 
-A Rails API for tracking lab equipment, categories, and maintenance records.
+# Lab Equipment API
+
+## Project Description
+
+The Lab Equipment API is a comprehensive Rails API designed to manage laboratory equipment inventory and maintenance tracking. It solves the chaos of tracking scattered equipment across a department by providing a centralized system to:
+
+- Track every piece of equipment with unique identification and categorization
+- Monitor the current status of each item (available, in use, or under maintenance)
+- Maintain complete maintenance history for all equipment
+- Enforce strict business rules to ensure data integrity and trustworthiness
+- Provide RESTful API endpoints for seamless integration with frontend applications
 
 ## Setup Instructions
 
+Follow these steps to get the project running from scratch:
+
 ```bash
-git clone https://github.com/lisa-lilu/labequipmentapi-1.git
+# Clone the repository
+git clone <repo-url>
 cd labequipmentapi-1
+
+# Install dependencies
 bundle install
-rails db:create db:migrate db:seed
-rails server
-```
+
+# Set up the database with migrations and seed data
+bin/rails db:create db:migrate db:seed
+
+# Start the Rails server
+bin/rails server
+The API will be available at http://localhost:3000# README
+# Lab Equipment 
+A Rails API for tracking lab equipment, categories, and maintenance records.
+
 ## Endpoints
 
 ### Categories
@@ -41,7 +61,7 @@ rails server
 | 1 - Data model | @Rahel-ag | task-1-model | Done |
 | 2 - Seeds | @lisa-lilu | task-2-seeds | Done |
 | 3 - Category CRUD | @Rahel-ag | task-3-categories | Done |
-| 4 - Equipment CRUD | @ | task-4-equipment | Not Started |
-| 5 - MaintenanceRecord CRUD | @ | task-5-maintenance | Not Started |
-| 6 - Business rules | @lisa-lilu | task-6-rules | Not Started |
-| 7 - Edge cases | @ | task-7-edge-cases | Not Started |
+| 4 - Equipment CRUD | @jose-90 | task-4-equipment |  |
+| 5 - MaintenanceRecord CRUD | @essete7 | task-5-maintenance | not started |
+| 6 - Business rules | @lisa-lilu | task-6-rules | done |
+| 7 - Edge cases | @lisa-lilu | task-7-edge-cases |  |
