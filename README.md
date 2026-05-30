@@ -63,5 +63,5 @@ A Rails API for tracking lab equipment, categories, and maintenance records.
 | 3 - Category CRUD | @Rahel-ag | task-3-categories | Done |
 | 4 - Equipment CRUD | @jose-90 | task-4-equipment |  |
 | 5 - MaintenanceRecord CRUD | @essete7 | task-5-maintenance | not started |
-| 6 - Business rules | @lisa-lilu | task-6-rules | done |
-| 7 - Edge cases | @lisa-lilu | task-7-edge-cases |  |
+| 6 - Business rules | @lisa-lilu | task-6-rules | Done |
+| 7 - Edge cases | @lisa-lilu | task-7-edge-cases | Done |
