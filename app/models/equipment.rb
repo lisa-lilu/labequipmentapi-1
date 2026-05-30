@@ -6,3 +6,4 @@ class Equipment < ApplicationRecord
   validates :serial_number, presence: true, uniqueness: true
   validates :status, inclusion: { in: %w[available in_use maintenance] }
 end
+
