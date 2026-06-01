@@ -6,7 +6,7 @@ The Lab Equipment API is a comprehensive Rails API designed to manage laboratory
 
 - Track every piece of equipment with unique identification and categorization
 - Monitor the current status of each item (available, in use, or under maintenance)
-- Maintain complete maintenance history for all equipment
+- Maintain completed maintenance history for all equipment
 - Enforce strict business rules to ensure data integrity and trustworthiness
 - Provide RESTful API endpoints for seamless integration with frontend applications
 
@@ -16,7 +16,7 @@ Follow these steps to get the project running from scratch:
 
 ```bash
 # Clone the repository
-git clone <repo-url>
+git clone <https://github.com/lisa-lilu/labequipmentapi-1.git>
 cd labequipmentapi-1
 
 # Install dependencies
